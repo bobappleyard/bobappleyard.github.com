@@ -1,0 +1,110 @@
+<html>
+<head></head>
+<body>
+<canvas id="view" width=640 height=480></canvas>
+
+<script>
+// graphics
+var GRAIN=8;
+
+var ctx = document.getElementById("view").getContext("2d");
+var cWidth = (ctx.canvas.width / GRAIN) - 1;
+var cHeight = (ctx.canvas.height / GRAIN) - 1;
+
+function drawSquare(x, y) {
+	ctx.fillRect(x*GRAIN,y*GRAIN,GRAIN,GRAIN);
+}
+
+/*
+function drawSquare(x, y) {
+	if (x >= 0 && y >= 0 && x < cWidth && y < cHeight) {
+		ctx.fillRect(x*GRAIN, y*GRAIN, GRAIN, GRAIN);
+	}
+}
+*/
+
+
+function transform(x, y) {
+	return x + y * cWidth;
+}
+
+function untransform(x) {
+	return {x: x%cWidth, y: Math.floor(x/cWidth)};
+}
+
+// probability distribution
+var probs = [], cum = [], total;
+
+function accumulate() {
+	var c = 0, i = 0;
+	probs.forEach(function(x) {
+		c += x;
+		cum[i] = c;
+		i++;
+	});
+	total = c;
+}
+
+function pick() {
+	var u = Math.random() * total;
+	for(var i = 0; i < cum.length; i++) {
+		if (u < cum[i]) {
+			return i;
+		}
+	}
+	alert(u + " > " + total);
+}
+
+// main algo
+var BUMP = 100;
+
+function step() {
+	var i = pick();
+	var p = untransform(i);
+	drawSquare(p.x, p.y);
+	
+	probs[i] = 0;
+	if (p.x < cWidth) {
+		if (probs[transform(p.x+1, p.y)]) {
+			probs[transform(p.x+1, p.y)] += BUMP;
+		}
+	}
+	if (p.x > 0) {
+		if (probs[transform(p.x-1, p.y)]) {
+			probs[transform(p.x-1, p.y)] += BUMP;
+		}
+	}
+	if (p.y < cHeight) {
+		if (probs[transform(p.x, p.y+1)]) {
+			probs[transform(p.x, p.y+1)] += BUMP;
+		}
+	}
+	if (p.y > 0) {
+		if (probs[transform(p.x, p.y-1)]) {
+			probs[transform(p.x, p.y-1)] += BUMP;
+		}
+	}
+	
+	accumulate();
+}
+
+function animate() {
+	if (total) {
+		step();
+		setTimeout(animate, 50);
+	}
+}
+
+// setup
+for (var i = 0; i < (cWidth + 1) * (cHeight + 1); i++) {
+	probs[i] = 1;
+}
+accumulate();
+
+// go!
+animate();
+
+</script>
+
+</body>
+</html>
