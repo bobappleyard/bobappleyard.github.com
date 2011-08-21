@@ -81,9 +81,8 @@ function animate(system, ctx) {
 		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 		system.step(ctx, delta/1000);
 		oldT = t;
-		setTimeout(draw, 32);
 	}
-	draw();
+	setInterval(draw, 32);
 }
 
 
