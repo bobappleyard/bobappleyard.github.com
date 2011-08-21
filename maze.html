@@ -1,0 +1,242 @@
+<html>
+<head><title>Colour Maze</title></head>
+<body>
+<canvas id=view width=640 height=300></canvas>
+<p><em>Use the arrow keys to move, ESC to restart a level, F5 to restart the game</em></p>
+<script>
+/*
+	OK, so here's a cute little game I made with Javascript.
+	
+	Copyright 2011 Bob Appleyard
+	
+	Fine for you to take it and do with it what you will, so long as you
+	include this note at the top. Feel free to email me any changes:
+	bob.appleyard@gmail.com
+*/
+
+ctx = document.getElementById("view").getContext("2d");
+GRAIN = 16;
+
+function circle(x, y, r, c) {
+	ctx.fillStyle = c;
+	ctx.beginPath();
+	ctx.arc(x+0.5, y+0.5, r, 0, 2*Math.PI, false);
+	ctx.fill();
+}
+
+function square(x, y, c) {
+	ctx.fillStyle = c;
+	ctx.fillRect(x, y, 1, 1);
+}
+
+tiles = {
+	hit: function(x, y, h) {
+		function block(c) {
+			if (player.color != c) {
+				h.block();
+			}
+		}
+		switch (map.at(x, y)) {
+			case '#': h.block(); break;
+			case 'B': block("blue"); break;
+			case 'Y': block("yellow"); break;
+			case 'R': block("red"); break;
+			case 'b': h.change("blue"); break;
+			case 'y': h.change("yellow"); break;
+			case 'r': h.change("red"); break;
+		}
+	},
+	draw: function(x, y) {
+		function blank() {
+			square(x, y, "white");
+		}
+		try {
+			ctx.save();
+			ctx.scale(GRAIN, GRAIN);
+			switch (map.at(x, y)) {
+				case ' ': blank(); break;
+				case '#': square(x, y, "gray"); break;
+				case '.': player.init(x, y); map.set(x, y, ' '); break;
+				case 'B': square(x, y, "blue"); break;
+				case 'Y': square(x, y, "yellow"); break;
+				case 'R': square(x, y, "red"); break;
+				case 'b': blank(); circle(x, y, 0.25, "blue"); break;
+				case 'y': blank(); circle(x, y, 0.25, "yellow"); break;
+				case 'r': blank(); circle(x, y, 0.25, "red"); break;
+			}
+		} finally {
+			ctx.restore();
+		}	
+	}
+};
+
+player = {
+	init: function(x, y) {
+		this.x = x;
+		this.y = y;
+		this.color = "black";
+	},
+	draw: function() {
+		try {
+			ctx.save();
+			ctx.scale(GRAIN, GRAIN);
+			circle(this.x, this.y, 0.5, this.color);
+		} finally {
+			ctx.restore();
+		}
+	},
+	move: function(x, y) {
+		var draw = true;
+		tiles.hit(x, y, {
+			block: function() {
+				x = player.x;
+				y = player.y;
+			},
+			change: function(c) {
+				player.color = c; 
+				map.set(x, y, ' ');
+				map.c--;
+				if (!map.c) {
+					map.next();
+					draw = false;
+				}
+			}
+		});
+		if (draw) {
+			tiles.draw(this.x, this.y);
+			this.x = x;
+			this.y = y;
+			this.draw();
+		}
+	}
+};
+
+map = {
+	init: function(s) {
+		var line = [];
+		var lines = [];
+		var c = 0;
+		function lineEnd() {
+			lines.push(line);
+			line=[];
+		}
+		for (var i = 0; i < s.length; i++) {
+			switch (s[i]) {
+				case '\n': lineEnd(); break;
+				case 'b':
+				case 'y':
+				case 'r': c++;
+				default: line.push(s[i]); break;
+			}
+		}
+		lineEnd();
+		this.m = lines;
+		this.c = c;
+	},
+	at: function(x, y) {
+		return this.m[y][x];
+	},
+	set: function(x, y, v) {
+		this.m[y][x] = v;
+	},
+	draw: function() {
+		for (var j = 0; j < this.m.length; j++) {
+			for (var i = 0; i < this.m[j].length; i++) {
+				tiles.draw(i, j);
+			}
+		}
+	},
+	maps: [
+		"########\n" +
+		"# .    #\n" +
+		"#     b#\n" +
+		"########\n",
+		"############\n" +
+		"# .  #     #\n" +
+		"#    B   b #\n" +
+		"# b  #     #\n" +
+		"############\n",
+		"############\n" +
+		"# . Bbbbbby#\n" +
+		"#   #Y######\n" +
+		"# b Yyyyyyb#\n" +
+		"############\n",
+		"#########\n" +
+		"# . Rbb #\n" +
+		"#rb ###B#\n" +
+		"#   Yyy #\n" +
+		"#########\n",
+		"#########\n" +
+		"#.yRbbbb#\n" +
+		"#yr#bbbb#\n" +
+		"#Y#######\n" +
+		"#yy#\n" +
+		"####\n",
+		"########\n" +
+		"# .   b#\n" +
+		"#B#Y#B##\n" +
+		"#yYbBb#\n" +
+		"#B###Y##\n" +
+		"#yYyYbr#\n" +
+		"###y#B##\n" +
+		"#bbyby#\n" +
+		"#######\n",
+		"###############\n" +
+		"#. BrrrrB #rrr#\n" +
+		"#by#rrrr# Brrr#\n" +
+		"#  #R#### #rrr#\n" +
+		"#  Yyyyy# #####\n" +
+		"####yyyy#     #\n" +
+		"   ####Y#B#####\n" +
+		"      #bbbb#\n" +
+		"      #bbbb#\n" +
+		"      ######\n",
+		"#############\n" +
+		"#bbb#yyy#bbb#\n" +
+		"#bbbYyyyYbbb#\n" +
+		"#bbb#yyy#bbb#\n" +
+		"##B###B###R##\n" +
+		"#yyy#bbb#rrr#\n" +
+		"#yyyYb.bBrrr#\n" +
+		"#yyy#bbb#rrr#\n" +
+		"##Y###R###R##\n" +
+		"#bbb#rrr#yyy#\n" +
+		"#bbbBrrrYyyy#\n" +
+		"#bbb#rrr#yyy#\n" +
+		"#############\n",
+	],
+	current: -1,
+	next: function() {
+		ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+		if (this.current+1 >= this.maps.length) {
+			alert("You finished!");
+			return;
+		}
+		++this.current;
+		this.restart();
+	},
+	restart: function() {
+		this.init(this.maps[this.current]);
+		this.draw();
+		player.draw();
+	}
+};
+
+document.onkeypress = function(e) {
+	if (!map.c) { return; }
+	var x = player.x, y = player.y;
+	switch (e.keyCode) {
+		case 27: map.restart(); return;
+		case 37: x = Math.max(0, x - 1); break;
+		case 38: y = Math.max(0, y - 1); break;
+		case 39: x++; break;
+		case 40: y++; break;
+	}
+	player.move(x, y);
+};
+
+map.next();
+</script>
+</body>
+</html>
+

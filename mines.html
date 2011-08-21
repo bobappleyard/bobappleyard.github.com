@@ -1,0 +1,103 @@
+<html>
+<head><title>Minesweeper</title></head>
+<style>
+	td { font-family: mono }
+</style>
+<body>
+<table id="view"></table>
+<script>
+var height = 10, width = 10, mines = 15, visited = 0;
+
+function newMap() {
+	blankTable();
+	placeMines();
+	visited = 0;
+}
+
+function blankTable() {
+	var table = document.createElement('table');
+	for (var j = 0; j < height; j++) {
+		var row = document.createElement('tr');
+		for (var i = 0; i < width; i++) {
+			var cell = document.createElement('td');
+			var link = document.createElement('a');
+			var pos = i + ',' + j;
+			link.appendChild(document.createTextNode("*"));
+			link.setAttribute('href', 'javascript:cellClick(' + pos + ')');
+			link.setAttribute('id', 'view-' + pos);
+			cell.appendChild(link);
+			row.appendChild(cell);
+		}
+		table.appendChild(row);
+	}
+	var oldTable = document.getElementById('view');
+	table.setAttribute('id', 'view');
+	oldTable.parentNode.replaceChild(table, oldTable);
+}
+
+function placeMines() {
+	for (var i = 0; i < mines; i++) {
+		var x = Math.floor(Math.random() * (height + 1));
+		var y = Math.floor(Math.random() * (width + 1));
+		var c = getCell(x, y);
+		if (!c || c.mined) {
+			i--;
+			continue;
+		}
+		c.mined = true;
+	}
+}
+
+function getCell(x, y) {
+	return document.getElementById('view-' + x + ',' + y);
+}
+
+function adjacent(x, y, f) {
+	f(x-1, y-1);
+	f(x, y-1);
+	f(x+1, y-1);
+	f(x-1, y);
+	f(x+1, y);
+	f(x-1, y+1);
+	f(x, y+1);
+	f(x+1, y+1);
+}
+
+function mineCount(x, y) {
+	var res = 0;
+	adjacent(x, y, function (x, y) {
+		var c = getCell(x, y);
+		if (c && c.mined) res++;
+	})
+	return res;
+}
+
+function cellClick(x, y) {
+	var e = getCell(x, y);
+	if (e && e.hasAttribute('href')) {
+		var c = mineCount(x, y);
+		var t = document.createTextNode(c);
+		if (e.mined) {
+			alert("death");
+			newMap();
+			return
+		}
+		e.replaceChild(t, e.childNodes[0]);
+		e.removeAttribute('href');
+		if (c === 0) {
+			adjacent(x, y, cellClick);
+		}
+		visited++
+		if (visited === (width * height) - mines) {
+			alert("success");
+			newMap();
+		}
+	}
+}
+
+newMap();
+</script>
+
+
+</body>
+</html>
