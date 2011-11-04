@@ -1,0 +1,30 @@
+<?doctype html>
+<html>
+<head>
+	<title>TVTropes Madlibs</title>
+</head>
+<body>
+	<p id="output"></p>
+	<textarea id="template" rows=20 cols=120>
+</textarea><br>
+	<input type="button" id="go" value="go" onclick="rplc();"></input>
+	<script src="data.js"></script>
+	<script>
+
+function rplc() {
+	var templ = document.getElementById("template").value;
+	var outp = document.getElementById("output");
+	outp.innerHTML = templ.replace(/\{(\w+)\}/g, function(drop, s) {
+		var set = data[s];
+		var r = getRandomInt(0, set.length);
+		return set[r];
+	});
+}
+
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;  
+}
+
+	</script>
+</body>
+</html>
