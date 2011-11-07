@@ -1,0 +1,30 @@
+<?doctype html>
+<html>
+<head>
+
+</head>
+</body>
+<canvas width=600 height=400 id="view"></canvas>
+<script>
+
+// get the drawing context
+
+var canvas = document.getElementById("view");
+var ctx = canvas.getContext("2d");
+
+// primitives (just circles this time?)
+
+function circle(x, y, r, c) {
+	ctx.beginPath();
+	ctx.arc(x, y, r, 0, 2*Math.PI, false);
+	ctx.fillStyle = c;
+	ctx.fill();
+}
+
+// actual code in script below
+
+
+</script>
+<script src="growth.js"></script>
+</body>
+</html>
