@@ -26,8 +26,8 @@ function energyAtEmitter(t) {
 /*	
 	
 	The heat radiates out over a surface in a circular shape. That means that
-	the energy received is inversely propotional to the square of the distance
-	from the emitter:
+	the energy received is inversely propotional to the distance from the
+	emitter:
 	
 		u(d) = σT⁴/2πd
 
@@ -130,12 +130,14 @@ function animate() {
 /* test layout */
 
 add(11, 5);
+add(12, 6);
+add(11, 12);
 heat(50);
 add(11, 6);
+add(11, 7);
 add(11, 8);
+add(11, 9);
 add(11, 10);
-add(11, 12);
-add(11, 14);
-add(11, 16);
+add(11, 11);
 animate();
 

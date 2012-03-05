@@ -1,0 +1,135 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+<script src="remedial.js"></script>
+</head>
+<body>
+<p>Enter a positive number to buy a good. Enter a negative number to sell a
+good.</p>
+<ul id="items"></ul>
+<p id="pocket"></p>
+<p id="feedback"></p>
+<button id="trade">trade</button>
+<script>
+
+var market = [
+	{name: "grain", min: 5, max: 15},
+	{name: "olives", min: 50, max: 120},
+	{name: "grapes", min: 200, max: 600},
+	{name: "herbs", min: 800, max: 2500},
+	{name: "dates", min: 1500, max: 4000},
+	{name: "spices", min: 3000, max: 8500},
+	{name: "jewels", min: 10000, max: 50000},
+];
+
+var pocket = {
+	coins: 100,
+	days: 100,
+	space: 100,
+};
+
+var display_funcs = [];
+
+function register_display(f) {
+	display_funcs.push(f);
+}
+
+function display() {
+	display_funcs.forEach(function (f) { f(); });
+}
+
+(function() {
+	var market_view = "<li>{name} - {price} " +
+	                  "<input id='{name}'></input> " +
+	                  "you have {qty}</li>";
+
+	register_display(function() {
+		var el = $("#items");
+		el.empty();
+		market.forEach(function(x) {
+			x.price = Math.floor(Math.random() * (x.max - x.min + 1)) + x.min;
+			var e = market_view.supplant(x);
+			el.append(e);
+		});
+	});
+
+	var pocket_view = "{coins} coins, {days} days, {space} slots";
+	
+	register_display(function() {
+		$("#pocket").text(pocket_view.supplant(pocket));
+	});
+	
+	register_display(function() {
+		display_feedback("");
+	});
+})();
+
+function display_feedback(msg) {
+	$("#feedback").text(msg.entityify());
+}
+
+function validate_quantity(qty, good) {
+	if (isNaN(qty)) {
+		throw new Error("invalid input: " + s);
+	}
+	if (qty == 0) {
+		throw new Error("zero trades aren't allowed");
+	}
+	if (qty < 0 && -qty > good.qty) {
+		throw new Error("not enough goods in hand");
+	}
+}
+
+function process_transaction() {
+	var trades = [];
+	var cost = 0, space = 0;
+	$("#items input").each(function(index) {
+		var s = $(this).attr("value");
+		var good = market[index];
+		if (s) {
+			var qty = parseInt(s);
+			validate_quantity(qty, good);
+			cost += market[index].price * qty;
+			space += qty;
+			trades.push({index: index, qty: qty});
+		}
+	});
+	if (cost > pocket.coins) {
+		throw new Error("costs too much");
+	}
+	if (space > pocket.space) {
+		throw new Error("not enough slots");
+	}
+	if (trades.length == 0) {
+		throw new Error("must make a trade");
+	}
+	trades.forEach(function(x) {
+		market[x.index].qty += x.qty;
+	});
+	pocket.coins -= cost;
+	pocket.space -= space;
+}
+
+$("#trade").click(function() {
+	try {
+		if (pocket.days <= 0) {
+			throw new Error("out of time");
+		}
+		process_transaction();
+		pocket.days--;
+		display();
+	} catch(err) {
+		display_feedback(err.toString());
+	}
+});
+
+market.forEach(function(x) {
+	x.qty = 0;
+});
+
+display();
+
+</script>
+
+</body>
+</html>
