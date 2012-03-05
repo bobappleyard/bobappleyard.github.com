@@ -28,22 +28,20 @@ var pocket = {
 	space: 100,
 };
 
-var display_funcs = [];
-
-function register_display(f) {
-	display_funcs.push(f);
-}
-
 function display() {
-	display_funcs.forEach(function (f) { f(); });
+	display.funcs.forEach(function(f) { f(); });
 }
+display.funcs = [];
+display.register = function(f) {
+	display.funcs.push(f);
+};
 
 (function() {
 	var market_view = "<li>{name} - {price} " +
 	                  "<input id='{name}'></input> " +
 	                  "you have {qty}</li>";
 
-	register_display(function() {
+	display.register(function() {
 		var el = $("#items");
 		el.empty();
 		market.forEach(function(x) {
@@ -55,11 +53,11 @@ function display() {
 
 	var pocket_view = "{coins} coins, {days} days, {space} slots";
 	
-	register_display(function() {
+	display.register(function() {
 		$("#pocket").text(pocket_view.supplant(pocket));
 	});
 	
-	register_display(function() {
+	display.register(function() {
 		display_feedback("");
 	});
 })();
@@ -69,9 +67,7 @@ function display_feedback(msg) {
 }
 
 function validate_quantity(qty, good) {
-	if (isNaN(qty)) {
-		throw new Error("invalid input: " + s);
-	}
+
 	if (qty == 0) {
 		throw new Error("zero trades aren't allowed");
 	}
@@ -85,7 +81,9 @@ function process_transaction() {
 	var cost = 0, space = 0;
 	$("#items input").each(function(index) {
 		var s = $(this).attr("value");
-		var good = market[index];
+		if (isNaN(qty)) {
+			throw new Error("invalid input: " + s);
+		}		var good = market[index];
 		if (s) {
 			var qty = parseInt(s);
 			validate_quantity(qty, good);
