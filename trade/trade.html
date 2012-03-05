@@ -83,7 +83,8 @@ function process_transaction() {
 		var s = $(this).attr("value");
 		if (isNaN(qty)) {
 			throw new Error("invalid input: " + s);
-		}		var good = market[index];
+		}
+		var good = market[index];
 		if (s) {
 			var qty = parseInt(s);
 			validate_quantity(qty, good);
