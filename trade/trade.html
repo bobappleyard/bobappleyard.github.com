@@ -67,7 +67,6 @@ function display_feedback(msg) {
 }
 
 function validate_quantity(qty, good) {
-
 	if (qty == 0) {
 		throw new Error("zero trades aren't allowed");
 	}
@@ -81,12 +80,12 @@ function process_transaction() {
 	var cost = 0, space = 0;
 	$("#items input").each(function(index) {
 		var s = $(this).attr("value");
-		if (isNaN(qty)) {
-			throw new Error("invalid input: " + s);
-		}
 		var good = market[index];
 		if (s) {
 			var qty = parseInt(s);
+			if (isNaN(qty)) {
+				throw new Error("invalid input: " + s);
+			}
 			validate_quantity(qty, good);
 			cost += market[index].price * qty;
 			space += qty;
