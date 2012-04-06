@@ -1,0 +1,1059 @@
+<?doctype html>
+<html>
+<head>
+<title>API Documentation</title>
+<style>.toggleButton{display:none}</style>
+</head>
+<body>
+<h1>Package bs</h1>
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+
+	
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "bs"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="#overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="#index">Index</a></dd>
+			
+			
+				<dd><a href="#subdirectories">Subdirectories</a></dd>
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				<p>
+A simple dynamic object-oriented programming language.
+</p>
+
+			</div>
+		</div>
+		
+	
+		<h2 id="index">Index</h2>
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+		<div id="manual-nav">
+			<dl>
+			
+				<dd><a href="#constants">Constants</a></dd>
+			
+			
+			
+				
+				<dd><a href="#PrimitivePackage">func PrimitivePackage(n string, f func(*Interpreter) map[string]*Object)</a></dd>
+			
+				
+				<dd><a href="#RegisterExtension">func RegisterExtension(n string, f func(*Interpreter))</a></dd>
+			
+			
+				
+				<dd><a href="#Accessor">type Accessor</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Accessor.Name">func (a *Accessor) Name() string</a></dd>
+				
+			
+				
+				<dd><a href="#Class">type Class</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Ancestor">func (c *Class) Ancestor() *Class</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Call">func (c *Class) Call(o *Object, i int, args ...*Object) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Extend">func (c *Class) Extend(i *Interpreter, n string, flags int, e []Slot) *Class</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Get">func (c *Class) Get(o *Object, i int) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Is">func (c *Class) Is(d *Class) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Name">func (c *Class) Name() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Names">func (c *Class) Names(hook, deep bool) []string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.New">func (c *Class) New(args ...*Object) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Object">func (c *Class) Object() *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Set">func (c *Class) Set(o *Object, i int, x *Object)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.Slot">func (c *Class) Slot(i int) Slot</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Class.SlotCount">func (c *Class) SlotCount() int</a></dd>
+				
+			
+				
+				<dd><a href="#Interpreter">type Interpreter</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#New">func New() *Interpreter</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Accessor">func (i *Interpreter) Accessor(n string) *Accessor</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Define">func (i *Interpreter) Define(n string, v *Object)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Defined">func (i *Interpreter) Defined(n string) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Eval">func (i *Interpreter) Eval(s string) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Exec">func (i *Interpreter) Exec(u *Unit) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Get">func (i *Interpreter) Get(n string) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Load">func (i *Interpreter) Load(p string)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Repl">func (i *Interpreter) Repl()</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Interpreter.Set">func (i *Interpreter) Set(n string, v *Object)</a></dd>
+				
+			
+				
+				<dd><a href="#Object">type Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Wrap">func Wrap(x interface{}) *Object</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Call">func (o *Object) Call(a *Accessor, args ...*Object) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Class">func (o *Object) Class() *Class</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Defined">func (o *Object) Defined(a *Accessor) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Get">func (o *Object) Get(a *Accessor) *Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Is">func (o *Object) Is(c *Class) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.Set">func (o *Object) Set(a *Accessor, x *Object)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.SetUserData">func (o *Object) SetUserData(x interface{})</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.String">func (o *Object) String() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToArray">func (o *Object) ToArray() []*Object</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToBuffer">func (o *Object) ToBuffer() []byte</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToClass">func (o *Object) ToClass() *Class</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToFloat">func (o *Object) ToFloat() float64</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToInt">func (o *Object) ToInt() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.ToString">func (o *Object) ToString() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Object.UserData">func (o *Object) UserData() interface{}</a></dd>
+				
+			
+				
+				<dd><a href="#Slot">type Slot</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#AbstractMethod">func AbstractMethod(n string) Slot</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#FSlot">func FSlot(n string, f interface{}) Slot</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#MSlot">func MSlot(n string, f interface{}) Slot</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#PSlot">func PSlot(n string, f interface{}) Slot</a></dd>
+				
+				
+			
+				
+				<dd><a href="#SlotKind">type SlotKind</a></dd>
+				
+				
+			
+				
+				<dd><a href="#SlotVis">type SlotVis</a></dd>
+				
+				
+			
+				
+				<dd><a href="#Unit">type Unit</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.Compile">func (u *Unit) Compile(in io.Reader, f string)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.CompileStmt">func (u *Unit) CompileStmt(l *Lexer) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.CompileStr">func (u *Unit) CompileStr(s string)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.Copy">func (u *Unit) Copy() *Unit</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.Load">func (u *Unit) Load(r io.Reader) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="#Unit.Save">func (u *Unit) Save(w io.Writer)</a></dd>
+				
+			
+			
+		</dl>
+
+		
+
+		
+			<h4>Package files</h4>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="#index">compiler.go</a>
+			
+				<a href="#index">interpreter.go</a>
+			
+				<a href="#index">parser.go</a>
+			
+				<a href="#index">paths.go</a>
+			
+				<a href="#index">primitives.go</a>
+			
+			</span>
+			</p>
+		
+	
+		
+			<h2 id="constants">Constants</h2>
+			
+				<pre>const (
+    Final = 1 &lt;&lt; iota
+    Primitive
+    UserData
+)</pre>
+				
+			
+		
+		
+		
+			
+			
+			<h2 id="PrimitivePackage">func <a href="#index">PrimitivePackage</a></h2>
+			<pre>func PrimitivePackage(n string, f func(*Interpreter) map[string]*Object)</pre>
+			
+			
+		
+			
+			
+			<h2 id="RegisterExtension">func <a href="#index">RegisterExtension</a></h2>
+			<pre>func RegisterExtension(n string, f func(*Interpreter))</pre>
+			<p>
+Inform the system about an extension to the language.
+</p>
+
+			
+		
+		
+			
+			
+			<h2 id="Accessor">type <a href="#index">Accessor</a></h2>
+			<pre>type Accessor struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+Accessors refer to names that can be looked up on objects.
+</p>
+
+
+			
+
+			
+
+			
+
+			
+
+			
+				
+				<h3 id="Accessor.Name">func (*Accessor) <a href="#index">Name</a></h3>
+				<pre>func (a *Accessor) Name() string</pre>
+				<p>
+The accessor&#39;s name.
+</p>
+
+				
+				
+			
+		
+			
+			
+			<h2 id="Class">type <a href="#index">Class</a></h2>
+			<pre>type Class struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+Classes describe objects. They each have a name and an ancestor, accompanied
+by a series of entries describing fields and methods.
+</p>
+
+
+			
+
+			
+				<pre>var ClassClass, AccessorClass, NilClass, BooleanClass, TrueClass, FalseClass,
+    StringClass, NumberClass, IntClass, FltClass, FunctionClass, ArrayClass,
+    HashClass, BufferClass, CollectionClass, IteratorClass, ErrorClass *Class</pre>
+				<p>
+Primitive data types. The normal operations on classes (extension, creation)
+do not work on these classes.
+</p>
+
+			
+				<pre>var ObjectClass *Class</pre>
+				<p>
+The root class. All other classes descend from this one.
+</p>
+
+			
+
+			
+
+			
+
+			
+				
+				<h3 id="Class.Ancestor">func (*Class) <a href="#index">Ancestor</a></h3>
+				<pre>func (c *Class) Ancestor() *Class</pre>
+				<p>
+Get the class&#39; ancestor.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Call">func (*Class) <a href="#index">Call</a></h3>
+				<pre>func (c *Class) Call(o *Object, i int, args ...*Object) *Object</pre>
+				
+				
+				
+			
+				
+				<h3 id="Class.Extend">func (*Class) <a href="#index">Extend</a></h3>
+				<pre>func (c *Class) Extend(i *Interpreter, n string, flags int, e []Slot) *Class</pre>
+				<p>
+Create a descendant of c with the given name and a series of entries
+describing the class&#39; members. Panics if the class cannot be extended.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Get">func (*Class) <a href="#index">Get</a></h3>
+				<pre>func (c *Class) Get(o *Object, i int) *Object</pre>
+				
+				
+				
+			
+				
+				<h3 id="Class.Is">func (*Class) <a href="#index">Is</a></h3>
+				<pre>func (c *Class) Is(d *Class) bool</pre>
+				<p>
+Check if c is the same class as d, or one of d&#39;s descendants.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Name">func (*Class) <a href="#index">Name</a></h3>
+				<pre>func (c *Class) Name() string</pre>
+				<p>
+Get the class&#39; name.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Names">func (*Class) <a href="#index">Names</a></h3>
+				<pre>func (c *Class) Names(hook, deep bool) []string</pre>
+				
+				
+				
+			
+				
+				<h3 id="Class.New">func (*Class) <a href="#index">New</a></h3>
+				<pre>func (c *Class) New(args ...*Object) *Object</pre>
+				<p>
+Create a new object instance.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Object">func (*Class) <a href="#index">Object</a></h3>
+				<pre>func (c *Class) Object() *Object</pre>
+				<p>
+Get the class&#39; object.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Class.Set">func (*Class) <a href="#index">Set</a></h3>
+				<pre>func (c *Class) Set(o *Object, i int, x *Object)</pre>
+				
+				
+				
+			
+				
+				<h3 id="Class.Slot">func (*Class) <a href="#index">Slot</a></h3>
+				<pre>func (c *Class) Slot(i int) Slot</pre>
+				
+				
+				
+			
+				
+				<h3 id="Class.SlotCount">func (*Class) <a href="#index">SlotCount</a></h3>
+				<pre>func (c *Class) SlotCount() int</pre>
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Interpreter">type <a href="#index">Interpreter</a></h2>
+			<pre>type Interpreter struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+An interpreter provides a global environment and some functions to control
+the general flow of execution.
+</p>
+
+
+			
+
+			
+
+			
+
+			
+				
+				<h3 id="New">func <a href="#index">New</a></h3>
+				<pre>func New() *Interpreter</pre>
+				<p>
+Create a new interpreter with the default environment.
+</p>
+
+				
+			
+
+			
+				
+				<h3 id="Interpreter.Accessor">func (*Interpreter) <a href="#index">Accessor</a></h3>
+				<pre>func (i *Interpreter) Accessor(n string) *Accessor</pre>
+				<p>
+Retrieve the named accessor.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Define">func (*Interpreter) <a href="#index">Define</a></h3>
+				<pre>func (i *Interpreter) Define(n string, v *Object)</pre>
+				<p>
+Define a new global variable.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Defined">func (*Interpreter) <a href="#index">Defined</a></h3>
+				<pre>func (i *Interpreter) Defined(n string) bool</pre>
+				<p>
+Check whether a global variable is defined.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Eval">func (*Interpreter) <a href="#index">Eval</a></h3>
+				<pre>func (i *Interpreter) Eval(s string) *Object</pre>
+				<p>
+Evaluate an expression, returning its value. Panics on error.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Exec">func (*Interpreter) <a href="#index">Exec</a></h3>
+				<pre>func (i *Interpreter) Exec(u *Unit) *Object</pre>
+				<p>
+Run some compiled code. Panics on error.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Get">func (*Interpreter) <a href="#index">Get</a></h3>
+				<pre>func (i *Interpreter) Get(n string) *Object</pre>
+				<p>
+Look up a global variable and return its value. Panics if the variable does
+not exist.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Load">func (*Interpreter) <a href="#index">Load</a></h3>
+				<pre>func (i *Interpreter) Load(p string)</pre>
+				<p>
+Load a code file into the interpreter. May be in source or compiled form.
+Panics on error.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Repl">func (*Interpreter) <a href="#index">Repl</a></h3>
+				<pre>func (i *Interpreter) Repl()</pre>
+				<p>
+Start a prompt that reads expressions from stdin and prints them to stdout.
+Swallows and prints all errors.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Interpreter.Set">func (*Interpreter) <a href="#index">Set</a></h3>
+				<pre>func (i *Interpreter) Set(n string, v *Object)</pre>
+				<p>
+Update the value of a  global variable. Panics if the variable does not
+exist.
+</p>
+
+				
+				
+			
+		
+			
+			
+			<h2 id="Object">type <a href="#index">Object</a></h2>
+			<pre>type Object struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+Everything that the runtime sees is encoded as an object. An object has a
+set of fields and methods, specified by a class. The fields may vary in
+value between different instances of an object and the methods are fixed for
+all instances of a given class.
+</p>
+<p>
+Note that in some cases objects use extra space on the end to store
+primitive data. Therefore always refer to Objects as pointers to structs.
+</p>
+
+
+			
+
+			
+				<pre>var Nil, True, False *Object</pre>
+				<p>
+Built in values.
+</p>
+
+			
+
+			
+
+			
+				
+				<h3 id="Wrap">func <a href="#index">Wrap</a></h3>
+				<pre>func Wrap(x interface{}) *Object</pre>
+				<p>
+Given a bool, int, float64, string or []*Object return an object
+corresponding to that value.
+</p>
+<p>
+If a function is passed in: This function should take an object argument
+representing the receiver, and then zero to four other object arguments
+representing the arguments to the primitive. Alternatively, an array of
+objects may represent the arguments.
+</p>
+<p>
+Ignore the receiver in the case of functions that are not methods; its value
+is undefined.
+</p>
+
+				
+			
+
+			
+				
+				<h3 id="Object.Call">func (*Object) <a href="#index">Call</a></h3>
+				<pre>func (o *Object) Call(a *Accessor, args ...*Object) *Object</pre>
+				<p>
+Call a function or method. If a is nil, o is the function to be called.
+Otherwise a is an accessor for a method to be called on o. Pass args to the
+function or method and return what the function or method returns. Panics
+if the object is not a function or the method does not exist, or if the
+function or method panics.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.Class">func (*Object) <a href="#index">Class</a></h3>
+				<pre>func (o *Object) Class() *Class</pre>
+				<p>
+Get the object&#39;s class.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.Defined">func (*Object) <a href="#index">Defined</a></h3>
+				<pre>func (o *Object) Defined(a *Accessor) bool</pre>
+				<p>
+Check to see whether a member is defined on an object.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.Get">func (*Object) <a href="#index">Get</a></h3>
+				<pre>func (o *Object) Get(a *Accessor) *Object</pre>
+				<p>
+Get the slot to which the Accessor corresponds from the object. Panics if the
+slot does not exist.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.Is">func (*Object) <a href="#index">Is</a></h3>
+				<pre>func (o *Object) Is(c *Class) bool</pre>
+				<p>
+Check if the object is an instance of c (or one of its descendants).
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.Set">func (*Object) <a href="#index">Set</a></h3>
+				<pre>func (o *Object) Set(a *Accessor, x *Object)</pre>
+				<p>
+Set the corresponding slot on o to x. Panics if the slot does not exist
+or cannot be written to.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.SetUserData">func (*Object) <a href="#index">SetUserData</a></h3>
+				<pre>func (o *Object) SetUserData(x interface{})</pre>
+				
+				
+				
+			
+				
+				<h3 id="Object.String">func (*Object) <a href="#index">String</a></h3>
+				<pre>func (o *Object) String() string</pre>
+				<p>
+Make objects printable from Go.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToArray">func (*Object) <a href="#index">ToArray</a></h3>
+				<pre>func (o *Object) ToArray() []*Object</pre>
+				<p>
+Retrieve []*Object associated with the object. Panics if there is no such
+datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToBuffer">func (*Object) <a href="#index">ToBuffer</a></h3>
+				<pre>func (o *Object) ToBuffer() []byte</pre>
+				<p>
+Retrieve []byte associated with the object. Panics if there is no such datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToClass">func (*Object) <a href="#index">ToClass</a></h3>
+				<pre>func (o *Object) ToClass() *Class</pre>
+				<p>
+Retrieve *Class associated with the object. Panics if there is no such datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToFloat">func (*Object) <a href="#index">ToFloat</a></h3>
+				<pre>func (o *Object) ToFloat() float64</pre>
+				<p>
+Retrieve float64 associated with the object. Panics if there is no such
+datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToInt">func (*Object) <a href="#index">ToInt</a></h3>
+				<pre>func (o *Object) ToInt() int</pre>
+				<p>
+Retrieve int associated with the object. Panics if there is no such datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.ToString">func (*Object) <a href="#index">ToString</a></h3>
+				<pre>func (o *Object) ToString() string</pre>
+				<p>
+Retrieve string associated with the object. Panics if there is no such datum.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Object.UserData">func (*Object) <a href="#index">UserData</a></h3>
+				<pre>func (o *Object) UserData() interface{}</pre>
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Slot">type <a href="#index">Slot</a></h2>
+			<pre>type Slot struct {
+    Name  string
+    Kind  SlotKind
+    Vis   SlotVis
+    Value *Object
+    Class *Class
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+Slots describe class members.
+</p>
+<p>
+When constructing a primitive class, fill in the first four fields. The
+runtime will fill in the rest.
+</p>
+
+
+			
+
+			
+
+			
+
+			
+				
+				<h3 id="AbstractMethod">func <a href="#index">AbstractMethod</a></h3>
+				<pre>func AbstractMethod(n string) Slot</pre>
+				<p>
+Slot describing a method that descendant classes ought to implement.
+</p>
+
+				
+			
+				
+				<h3 id="FSlot">func <a href="#index">FSlot</a></h3>
+				<pre>func FSlot(n string, f interface{}) Slot</pre>
+				<p>
+Public field slot.
+</p>
+
+				
+			
+				
+				<h3 id="MSlot">func <a href="#index">MSlot</a></h3>
+				<pre>func MSlot(n string, f interface{}) Slot</pre>
+				<p>
+Public method slot.
+</p>
+
+				
+			
+				
+				<h3 id="PSlot">func <a href="#index">PSlot</a></h3>
+				<pre>func PSlot(n string, f interface{}) Slot</pre>
+				<p>
+Private field slot.
+</p>
+
+				
+			
+
+			
+		
+			
+			
+			<h2 id="SlotKind">type <a href="#index">SlotKind</a></h2>
+			<pre>type SlotKind byte</pre>
+			<p>
+There are two kinds of entries, fields and methods.
+</p>
+
+
+			
+				<pre>const (
+    Field SlotKind = iota
+    Method
+    Marker
+)</pre>
+				
+			
+
+			
+
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="SlotVis">type <a href="#index">SlotVis</a></h2>
+			<pre>type SlotVis byte</pre>
+			<p>
+* Private -- only accessible to methods defined on the same class.
+</p>
+<p>
+* Public -- accessible to all.
+</p>
+
+
+			
+				<pre>const (
+    Private SlotVis = iota
+    Public
+)</pre>
+				
+			
+
+			
+
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Unit">type <a href="#index">Unit</a></h2>
+			<pre>type Unit struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}</pre>
+			<p>
+A unit represents some compiled code.
+</p>
+
+
+			
+
+			
+
+			
+
+			
+
+			
+				
+				<h3 id="Unit.Compile">func (*Unit) <a href="#index">Compile</a></h3>
+				<pre>func (u *Unit) Compile(in io.Reader, f string)</pre>
+				<p>
+Compile a BobScript source file. The results of the compilation can then be
+saved to a file or executed.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Unit.CompileStmt">func (*Unit) <a href="#index">CompileStmt</a></h3>
+				<pre>func (u *Unit) CompileStmt(l *Lexer) bool</pre>
+				<p>
+Compile a single toplevel statement.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Unit.CompileStr">func (*Unit) <a href="#index">CompileStr</a></h3>
+				<pre>func (u *Unit) CompileStr(s string)</pre>
+				<p>
+Shorthand wrapper around Compile().
+</p>
+
+				
+				
+			
+				
+				<h3 id="Unit.Copy">func (*Unit) <a href="#index">Copy</a></h3>
+				<pre>func (u *Unit) Copy() *Unit</pre>
+				
+				
+				
+			
+				
+				<h3 id="Unit.Load">func (*Unit) <a href="#index">Load</a></h3>
+				<pre>func (u *Unit) Load(r io.Reader) bool</pre>
+				<p>
+Load a compiled file. Panics on error. Returns whether or not the unit is in
+a valid format.
+</p>
+
+				
+				
+			
+				
+				<h3 id="Unit.Save">func (*Unit) <a href="#index">Save</a></h3>
+				<pre>func (u *Unit) Save(w io.Writer)</pre>
+				<p>
+Save a compiled file. Panics on error.
+</p>
+
+				
+				
+			
+		
+		</div>
+	
+
+	
+
+
+
+
+
+
+
+	
+	
+		<h2 id="subdirectories">Subdirectories</h2>
+	
+	<table class="dir">
+	<tr>
+	<th>Name</th>
+	<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+	<th style="text-align: left; width: auto">Synopsis</th>
+	</tr>
+	
+		<tr>
+		<td><a href="..">..</a></td>
+		</tr>
+	
+	
+		
+			<tr>
+			<td><a href="bytecode">bytecode</a></td>
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td style="width: auto"></td>
+			</tr>
+		
+	
+		
+			<tr>
+			<td><a href="ext">ext</a></td>
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td style="width: auto"></td>
+			</tr>
+		
+	
+		
+			<tr>
+			<td><a href="parse">parse</a></td>
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td style="width: auto"></td>
+			</tr>
+		
+	
+	</table>
+	
+
+</body>
+</html>

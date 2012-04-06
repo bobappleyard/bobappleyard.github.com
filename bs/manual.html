@@ -1,0 +1,701 @@
+<h1>Introduction</h1>
+
+<p>BobScript is a dynamic object oriented language optimised by putting object slot 
+information in global scope.</p>
+
+<p>It's a very early version so expect things to change, don't expect much to be
+there, and don't expect much to work. Also this manual's kind of rushed so some
+details might be wrong.</p>
+
+<p>I'm eventually going to use it to do things like script games, probably.</p>
+
+<p>This is aimed at Go 1. That's not out yet so I'm tracking weeklies, but when
+it's out I'll track that.</p>
+
+<h1>Getting started</h1>
+
+<p>Follow the README for build instructions. For now navigating to the project
+directory and typing:</p>
+
+<pre><code>./bsi
+</code></pre>
+
+<p>Will get you a prompt. From here you enter BobScript statements. Try entering
+these:</p>
+
+<pre><code>"Hello, world!";
+5*2 + 5*3;
+"Hello" + ", world!";
+(fn(a) = a(a))(fn(a) = a(a)); // this should pin the cpu
+</code></pre>
+
+<h1>Using the interpreter</h1>
+
+<p>The interpreter comes in two basic modes:</p>
+
+<ul>
+<li><p><strong>Script</strong> -- Executes a BobScript program. This program may be in source form 
+or in binary form.</p></li>
+<li><p><strong>Prompt</strong> -- The interpreter compiles an evaluates expressions as they are
+entered into a terminal. Useful for finding out about the system.</p></li>
+</ul>
+
+<h2>Script files</h2>
+
+<p>Script files are text files whose names end in ".bs". They contain a series of
+toplevel statements that are to be executed by the runtime, each terminated
+with <code>;</code>.</p>
+
+<h2>Script</h2>
+
+<p>Running the interpreter with a file as its first argument treats that file as
+as BobScript program and runs it.</p>
+
+<pre><code>./bsi &lt;script&gt;
+</code></pre>
+
+<p>By default, the interpreter will quit when the script has finished running. 
+Putting <code>-p</code> in at the start forces the prompt to appear when the program has 
+finished.</p>
+
+<pre><code>./bsi -p &lt;script&gt;
+</code></pre>
+
+<p>The interpreter provides a variable named "args" containing the name of the 
+script followed by the arguments to the script. Those arguments come after the
+name of the script on the command line. </p>
+
+<h2>Prompt</h2>
+
+<p>Running the interpreter with no parameters gives a prompt. </p>
+
+<pre><code>./bsi
+</code></pre>
+
+<h1>Using the compiler</h1>
+
+<p>Using the <code>-c</code> command line switch invokes the BobScript compiler. Pass in the 
+source files that you want compiled.</p>
+
+<pre><code>./bsi -c &lt;input files&gt; ...
+</code></pre>
+
+<p>By default, the target file is the name of the first source file with <code>c</code>
+appended. For instance <code>./bsi -c test.bs</code> will use <code>test.bsc</code> as the target
+file. Override this using <code>-o</code>.</p>
+
+<pre><code>./bsi -c -o &lt;output file&gt; &lt;input files&gt; ...
+</code></pre>
+
+<h1>The BobScript language</h1>
+
+<p>BobScript is like many object-oriented languages in that everything is an
+object. Functions are objects too, and have full lexical scope and tail
+recursion. Objects are described by classes, which are themselves objects.</p>
+
+<p>Because of this, the types described in this section have extra capabilities
+that are described in the library section.</p>
+
+<h2>Basic syntax</h2>
+
+<p>Comments are like C++</p>
+
+<pre><code>// line comment
+/* block comment */
+</code></pre>
+
+<p>Numbers are represented as series of digits, optionally separated with <code>.</code>
+and/or preceded with <code>-</code>.</p>
+
+<pre><code>0
+150
+-13
+14.72
+-2.8
+</code></pre>
+
+<p>The basic arithmetic and comparative operators work as expected.</p>
+
+<pre><code>1 + 3           // 4
+3 / 2           // 1.5
+12 * 4 - 6      // 42
+5 &gt;= 4          // true
+5 == 4 + 2      // false
+</code></pre>
+
+<p>Supported operations are <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+
+<p>Names follow the C syntax convention: Letters or <code>_</code> to begin, letters, digits
+or <code>_</code> after that.</p>
+
+<pre><code>foo
+Object
+foo_bar
+</code></pre>
+
+<p>Names refer to things. They might refer to a definition, or they might refer to
+a member on an object.</p>
+
+<pre><code>a               // definition
+a.prop          // member
+</code></pre>
+
+<p>There are two boolean values, <code>true</code> and <code>false</code>. </p>
+
+<p>Booleans support one operation, negation.</p>
+
+<pre><code>!true           // false
+!false          // true
+</code></pre>
+
+<p>This is actually supported by every other object in BobScript as well. For every
+value other than <code>false</code>, <code>false</code> is returned.</p>
+
+<p>The logical operators <code>&amp;&amp;</code> (and) and <code>||</code> (or) are provided.</p>
+
+<pre><code>true &amp;&amp; true    // true
+false || true   // true
+false &amp;&amp; true   // false
+false || false  // false
+</code></pre>
+
+<p>These operator have short-circuiting. This means that if the value of the 
+expression can be determined after evaluating the left operand, the right 
+operand is not evaluated.</p>
+
+<p>There is <code>nil</code>, which represents no value. This is primarily used for functions 
+and methods that are only called for their side effects.</p>
+
+<p>Strings have the usual C-like syntax: enclosed in <code>"</code>, with <code>\</code> for escape 
+sequences.</p>
+
+<pre><code>"Hello, world!\n"
+</code></pre>
+
+<p>Two strings may be concatenated using <code>+</code>.</p>
+
+<pre><code>"Hello, " + "world!\n" // gives the same value as before
+</code></pre>
+
+<p>Arrays are series of objects enclosed in brackets and separated with <code>,</code>.</p>
+
+<pre><code>[1, 2, 3]
+</code></pre>
+
+<p>The familiar subscript access is available.</p>
+
+<pre><code>array[0]      // get the 0th member
+array[1] = 2  // set the first member to 2
+</code></pre>
+
+<p>Arrays may be concatenated as strings are.</p>
+
+<pre><code>[1, 2] + [3, 4] // [1, 2, 3, 4]
+</code></pre>
+
+<p>Hashes are key-value pairs enclosed in curly brackets and separated with <code>,</code>.
+In each pair, the key is separated from the value by <code>:</code>.</p>
+
+<pre><code>{"key1": "value1", "key2": "value2"}
+</code></pre>
+
+<p>Any object may be a key or a value. Only strings and numbers are likely to be
+useful keys most of the time, though.</p>
+
+<h2>Control structures</h2>
+
+<p>A <strong>block</strong> is a series of statements, each punctuated with a <code>;</code>.</p>
+
+<pre><code>a = 1;
+b = 2;
+print(a + b);
+</code></pre>
+
+<p>An <strong>if statement</strong> evaluates an expression. If it evaluates to <code>true</code> then <code>if</code> 
+evalutates its <code>then</code> block. If the expression evaluates to <code>false</code> then <code>if</code> 
+evaluates its else block. Every value other than <code>false</code> is counted as <code>true</code> to
+an <code>if</code> statement.</p>
+
+<pre><code>if &lt;expression&gt; then &lt;block&gt; else &lt;block&gt; end
+</code></pre>
+
+<p>e.g.</p>
+
+<pre><code>def a = 1;
+if a &lt; 5 then
+    print("a is less than five");
+end;
+if a &gt; 5 then
+    print("a is greater than five");
+end;
+</code></pre>
+
+<p>This prints <code>a is less than five</code>.</p>
+
+<h2>Variables</h2>
+
+<p>Variables allow you to store state and refer to the results of expresssions.
+They may appear in three different contexts:</p>
+
+<ul>
+<li><p><strong>Toplevel variables</strong> -- Always visible everywhere. Can be manipulated by the
+host runtime easily.</p></li>
+<li><p><strong>Fields</strong> -- Store state on objects.</p></li>
+<li><p><strong>Local variables</strong> -- Only visible in the scopes they are declared in.</p></li>
+</ul>
+
+<p>Defining a variable looks like</p>
+
+<pre><code>def &lt;name&gt;;           // uninitialised
+def &lt;name&gt; = &lt;expr&gt;;  // initialised to the value of &lt;expr&gt;
+def &lt;name&gt;, &lt;name&gt;;   // comma allows multiple definitions
+def &lt;name&gt; = &lt;expr&gt;, &lt;name&gt;; // different forms may be mixed freely
+</code></pre>
+
+<p>Variables may refer to previously defined variables in their initialisation
+section. Local variables may be defined at the start of a block.</p>
+
+<p>Locally defined variables shadow previous definitions.</p>
+
+<p>e.g.</p>
+
+<pre><code>def a = 1;
+def f()
+    def a = 2;
+    return a;
+end;
+print(f(), a);
+</code></pre>
+
+<p>This prints <code>2 1</code>.</p>
+
+<p>Once a variable has been defined, it may be updated so that the variable refers
+to a new value.</p>
+
+<pre><code>&lt;name&gt; = &lt;expr&gt;;
+</code></pre>
+
+<p>So if we alter the previous example, removing the internal definition, <code>a</code> is
+altered in place rather than shadowed.</p>
+
+<pre><code>def a = 1;
+def f()
+    a = 2; // &lt;--- no longer has "def" in front of it
+    return a;
+end;
+print(f(), a);
+</code></pre>
+
+<p>This now prints <code>2 2</code>.</p>
+
+<h2>Functions</h2>
+
+<p>Functions are an important part of BobScript. They are first-class, have
+lexical scope, and are properly tail-recursive. Functions appear in three main
+contexts:</p>
+
+<ul>
+<li><p><strong>Toplevel functions</strong> -- These are defined globally and are visible
+everywhere.</p></li>
+<li><p><strong>Internal functions</strong> -- These are defined inside other functions and are
+only visible in the blocks they are defined in.</p></li>
+<li><p><strong>Methods</strong> -- These are used to implement object behaviours. In most ways
+methods are just like ordinary functions, but there are differences that are
+explained in a later section.</p></li>
+</ul>
+
+<p>Functions can be defined in two ways.</p>
+
+<p><strong>Named functions</strong>:</p>
+
+<pre><code>def &lt;name&gt;(&lt;args&gt;) &lt;body&gt;
+</code></pre>
+
+<p><strong>Anonymous functions</strong>:</p>
+
+<pre><code>fn (&lt;args&gt;) &lt;body&gt;
+</code></pre>
+
+<p>&lt;args> is a series of names separated by <code>,</code> and represents the arguments to 
+the function.</p>
+
+<p>&lt;body> is either <code>=</code> followed by an expression, or a block terminated with 
+<code>end</code>.</p>
+
+<p>i.e. for anonymous functions</p>
+
+<pre><code>fn (&lt;args&gt;) = &lt;expr&gt;
+fn (&lt;args&gt;) &lt;block&gt; end
+</code></pre>
+
+<p>In the former case, it is as if</p>
+
+<pre><code>fn (&lt;args&gt;) return &lt;expr&gt;; end
+</code></pre>
+
+<p>had been written instead. See below for a description of what <code>return</code> does.</p>
+
+<p>To call a function, append expressions enclosed in <code>(</code> and <code>)</code> and separated by
+<code>,</code>. These expressions are evaluated in the caller's environment and passed to 
+the function. They are then bound to the corresponding arguments in the callee's
+environment, and the callee's body is evaluated in this new environment.</p>
+
+<pre><code>&lt;function&gt;(&lt;expr&gt;, ...)
+</code></pre>
+
+<p>Here &lt;function> means an expression that evaluates to a function.</p>
+
+<p>e.g.</p>
+
+<pre><code>def f(x)
+    print(x);
+end;
+f(5);
+</code></pre>
+
+<p>Prints <code>5</code>.</p>
+
+<p>Functions may return values using the <code>return</code> statement.</p>
+
+<pre><code>return &lt;expr&gt;
+</code></pre>
+
+<p>This causes the function to return whatever the provided expression evaluates 
+to. It returns straightaway, so no further statements are evaluated for that 
+call. If the expression representing the return value is a function call, the 
+caller's environment is cleared up before the call is made. This means that 
+recursion in this case does not grow the stack.</p>
+
+<p>You can exploit this property to make iterative processes using the syntax of
+recursion.</p>
+
+<p>e.g.</p>
+
+<pre><code>def for(i, t, f)
+    if i &lt; t then
+        f(i);
+        return for(i+1, t, f);
+    end;
+end;
+for(0, 10, fn(i)
+    print(i);
+end);
+</code></pre>
+
+<p>Prints <code>0</code> to <code>9</code> on consecutive lines. When <code>for</code> calls itself, the stack 
+remains where it is. This is exactly equivalent to a "for loop" in many other
+languages, but using function calls rather than special syntax.</p>
+
+<p>A function has access to its enclosing scope. This includes definitions that
+follow the function's definition. In the case of internal functions, this is
+true even when the enclosing function has returned.</p>
+
+<p>e.g.</p>
+
+<pre><code>def accumulate(x)
+    return fn(y)
+        x = x + y;
+        return x;
+    end;
+end;
+</code></pre>
+
+<p>This implements a function that, when called, returns another function. This 
+inner function refers to <code>x</code> after <code>accumulate</code> has returned. This is what some 
+people call "closures," others call "lexical scope."</p>
+
+<pre><code>def a = accumulate(1);
+a(1);                   // 2
+a(4);                   // 6
+</code></pre>
+
+<h2>Objects</h2>
+
+<p>Objects have members associated with them. There are two kinds of member:</p>
+
+<ul>
+<li><p><strong>Fields</strong> -- These provide storage on the object.</p></li>
+<li><p><strong>Methods</strong> -- These are functions that are associated with the object.</p></li>
+</ul>
+
+<p>In both cases they are accessed using <code>.</code>.</p>
+
+<pre><code>a.field      // reading a field
+a.field = x  // writing a field
+a.method()   // calling a method
+</code></pre>
+
+<h2>Classes</h2>
+
+<p>Objects are described by classes. Classes support one operation, which is to 
+construct an instance of that class (an object).</p>
+
+<pre><code>def obj = new Object();
+</code></pre>
+
+<p>Here, <code>Object</code> is the class that will be used to instantiate the object. This
+may be any expression, but if it involves function calls it should be
+parenthesised, as they are otherwise caught by the syntax. This is so arguments
+may be passed to the object's constructor, <code>create</code>.</p>
+
+<p>To define a class, use the <code>class</code> keyword</p>
+
+<pre><code>class &lt;class name&gt;(&lt;ancestor&gt;)
+    &lt;class body&gt;
+end;
+</code></pre>
+
+<p>The &lt;ancestor> is an expression that evaluates to a class, and is used for 
+inheritance. Any members defined on the ancestor are also defined on this class.
+It may be omitted, in which case <code>Object</code> is used.</p>
+
+<p>The &lt;class body> is a series of <code>def</code> statements punctuated with <code>;</code>.
+Definitions that look like variables correspond to fields and definitions that
+look like functions correspond to methods.</p>
+
+<p>e.g.</p>
+
+<pre><code>class Vector()
+    def x, y;
+    def create(x, y)
+        this.x = x;
+        this.y = y;
+    end;
+    def length()
+        return sqrt(this.x*this.x + this.y*this.y);
+    end;
+end;
+</code></pre>
+
+<p>The <code>create</code> method is the constructor. This is called immediately after the
+<code>Vector</code> object has been created. More precisely, <code>__new__</code> is called, which
+calls <code>create</code> and then returns the new object.</p>
+
+<p>Classes have access specifiers that control which members are visible where.
+There are three kinds of access:</p>
+
+<ul>
+<li><p><strong>Private</strong> -- The member is visible only to that class.</p></li>
+<li><p><strong>Protected</strong> -- The member is visible to that class and its descendants.</p></li>
+<li><p><strong>Public</strong> -- The member is visible everywhere.</p></li>
+</ul>
+
+<p>This is done using the <code>private</code>, <code>protected</code> and <code>public</code> keywords.</p>
+
+<h2>Methods</h2>
+
+<p>Methods are functions that are attached to classes. When in the body of a method 
+an extra variable is available, <code>this</code>, which represents the object the method
+is being called on.</p>
+
+<p>e.g.</p>
+
+<pre><code>1.toString()     // this set to 1 in call to toString()
+a.b.c(d);        // this set to b in call to c()
+</code></pre>
+
+<p>Methods will "remember" the object they were associated with. This means that
+you can access methods as if they were fields, then later call them and <code>this</code>
+will still be the object the method was on, no matter what happened in between.</p>
+
+<p>e.g.</p>
+
+<pre><code>def f = 1.toString();
+print(f());
+</code></pre>
+
+<p>Prints <code>1</code>.</p>
+
+<p>This is contrasted with Javascript, the behaviour of which is often confusing to
+newcomers in this regard.</p>
+
+<h1>The BobScript library</h1>
+
+<p>This is extremely small and underpowered. Most of the work so far has gone into
+the basic behaviour of the language.</p>
+
+<p>Before discussing the built-in classes, there are some toplevel functions
+defined by the runtime. Many of these will disappear with time.</p>
+
+<ul>
+<li><p><strong>print(x...)</strong><br />
+Print 0 or more objects to standard output.</p></li>
+<li><p><strong>read()</strong><br />
+Read a line from standard input.</p></li>
+<li><p><strong>load(path)</strong><br />
+Load a BobScript file with the given path.</p></li>
+<li><p><strong>exit(code)</strong><br />
+Exit the process with the given code.</p></li>
+<li><p><strong>access(name)</strong><br />
+Create an Accessor object with the given name.</p></li>
+<li><p><strong>throw(x)</strong><br />
+Throw an error.</p></li>
+<li><p><strong>catch(thk)</strong><br />
+Call <code>thk</code>. If an error is thrown anywhere inside <code>thk</code>, return it. Otherwise
+return <code>false</code>.</p></li>
+</ul>
+
+<h2>Object</h2>
+
+<p>The root class. All objects instantiate Object.</p>
+
+<ul>
+<li><p><strong>copy()</strong><br />
+Creates a copy of the object.</p></li>
+<li><p><strong>toString()</strong><br />
+The default method for string conversion/printing.</p></li>
+<li><p><strong>is(c)</strong><br />
+Test whether the object instantiates class <code>c</code>.</p></li>
+<li><p><strong>type()</strong><br />
+The object's class.</p></li>
+</ul>
+
+<h2>Function</h2>
+
+<p><em>final, primitive</em></p>
+
+<ul>
+<li><strong>apply(args)</strong><br />
+Call the function, passing <code>args</code>, which should be an array containing the
+intended arguments to the function.</li>
+</ul>
+
+<h2>Class</h2>
+
+<p><em>final, primitive</em></p>
+
+<ul>
+<li><p><strong>name()</strong><br />
+Returns the name of the class in question.</p></li>
+<li><p><strong>names()</strong><br />
+Returns the names of members this class defines.</p></li>
+<li><p><strong>allNames()</strong><br />
+Returns all the defined members. That is, it includes members defined in all
+of the class' ancestors.</p></li>
+</ul>
+
+<h2>Number</h2>
+
+<p><em>final, primitive</em></p>
+
+<p>There are two classes which descend from <code>Number</code>, <code>Integer</code> and <code>Float</code>. These
+have the same interface as <code>Number</code> but actually implement it. <code>Number</code> is,
+itself, absolutely useless.</p>
+
+<ul>
+<li><p><strong>toInt()</strong><br />
+Convert the number to an integer.</p></li>
+<li><p><strong>toFloat()</strong><br />
+Convert the number to a float.</p></li>
+</ul>
+
+<h2>String</h2>
+
+<p><em>final, primitive</em></p>
+
+<ul>
+<li><p><strong>length()</strong><br />
+Returns the number of characters in the string.</p></li>
+<li><p><strong>split(sep?)</strong><br />
+Returns an array of substrings. If called with no parameters or the parameter
+is an empty string, each substring represents a character from the string.
+Otherwise the parameter is a delimiter, and each substring is made of
+contiguous regions of the string that are not the delimiter.</p>
+
+<p>e.g. a simple way of parsing a csv file</p>
+
+<p>text.split("\n").map(fn(x) = x.split(","))</p></li>
+<li><p><strong>subst(args*)</strong><br />
+Returns a string where occurrences of <code>%</code> are replaced with the corresponding
+argument.</p></li>
+<li><p><strong>toInt()</strong><br />
+Convert the string to an integer.</p></li>
+<li><p><strong>toFloat()</strong><br />
+Convert the string to a float.</p></li>
+<li><p><strong>toNumber()</strong><br />
+Convert the string to a number.</p></li>
+<li><p><strong>startsWith(s)</strong><br />
+Does the string start with <code>s</code>?</p></li>
+<li><p><strong>endsWith(s)</strong><br />
+Does the string end with <code>s</code>?</p></li>
+<li><p><strong>contains(s)</strong><br />
+Does the string contain <code>s</code>?</p></li>
+<li><p><strong>match(e)</strong><br />
+Does the string match the regular expression <code>e</code>?</p></li>
+<li><p><strong>trim(s?)</strong><br />
+Remove any characters in <code>s</code> from the beginning and end of the string. If no 
+parameter is provided, default to whitespace characters.</p></li>
+<li><p><strong>trimLeft(s?)</strong><br />
+Remove any characters in <code>s</code> from the beginning of the string. If no parameter 
+is provided, default to whitespace characters.</p></li>
+<li><p><strong>trimRight(s?)</strong><br />
+Remove any characters in <code>s</code> from the end of the string. If no parameter is 
+provided, default to whitespace characters.</p></li>
+<li><p><strong>quote()</strong><br />
+Returns the quoted representation of the string.</p></li>
+<li><p><strong>unquote()</strong><br />
+Given the string is a quoted representation, return the string that it 
+represents.</p></li>
+</ul>
+
+<h2>Array</h2>
+
+<p><em>final</em></p>
+
+<ul>
+<li><p><strong>length()</strong><br />
+Returns the number of items in the array.</p></li>
+<li><p><strong>add(x*)</strong><br />
+Adds an item to the array.</p></li>
+<li><p><strong>remove(x)</strong><br />
+Removes all instances of an item from the array.</p></li>
+<li><p><strong>insert(i, x)</strong><br />
+Inserts an item to the array at the given index.</p></li>
+<li><p><strong>delete(i)</strong><br />
+Deletes an item to the array with the given index.</p></li>
+<li><p><strong>slice(from?, to?)</strong><br />
+Returns a section of the array starting at <code>from</code> and ending on the element
+before <code>to</code>. This is an array that shares structure with the original array,
+so changes to one are reflected in the other.</p></li>
+<li><p><strong>each(f)</strong><br />
+Calls <code>f</code> on every item in the array, passing in the index followed by the
+item.</p></li>
+<li><p><strong>filter(f)</strong><br />
+Returns an array containing all the elements for which a call to <code>f</code> returns
+a true value (anything but <code>false</code>).</p></li>
+<li><p><strong>map(f)</strong><br />
+Returns an array containing all the return values of calling <code>f</code> on each item
+in the current array, in order.  </p>
+
+<p>i.e.</p>
+
+<p>def r = [1, 2, 3].map(fn(x) = x+5);</p>
+
+<p>is equivalent to</p>
+
+<p>def r = [];
+[1, 2, 3].each(fn(i, x)
+    r.add(x+5);
+end);</p></li>
+<li><p><strong>reduce(x, f)</strong><br />
+Apply <code>f</code> to every item in the array, passing the return value of the previous 
+call into the next call. </p></li>
+<li><p><strong>join(sep?)</strong><br />
+Given an array of strings, return a single string consisting of each item in
+the array concatenated together, separated with <code>sep</code> (or "" if the parameter
+is not present).</p></li>
+</ul>
+
+<h2>Hash</h2>
+
+<p><em>final</em></p>
+
+<ul>
+<li><p><strong>keys()</strong><br />
+Return all the keys on this hash.</p></li>
+<li><p><strong>each(f)</strong><br />
+Calls <code>f</code> on every item in the hash, passing in the key followed by the item.</p></li>
+<li><p><strong>map(f)</strong>
+Returns a map containing all the return values of calling <code>f</code> on each item in
+the map.</p></li>
+</ul>
