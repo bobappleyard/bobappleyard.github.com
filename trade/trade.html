@@ -1,6 +1,6 @@
 <html>
 <head>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script>
 <script src="remedial.js"></script>
 </head>
 <body>
@@ -11,121 +11,157 @@ good.</p>
 <p id="feedback"></p>
 <button id="trade">trade</button>
 <script>
+$(function() {
+    var market = [
+	    {name: "grain", min: 5, max: 15},
+	    {name: "olives", min: 50, max: 120},
+	    {name: "grapes", min: 200, max: 600},
+	    {name: "herbs", min: 800, max: 2500},
+	    {name: "dates", min: 1500, max: 4000},
+	    {name: "spices", min: 3000, max: 8500},
+	    {name: "jewels", min: 10000, max: 50000},
+    ];
 
-var market = [
-	{name: "grain", min: 5, max: 15},
-	{name: "olives", min: 50, max: 120},
-	{name: "grapes", min: 200, max: 600},
-	{name: "herbs", min: 800, max: 2500},
-	{name: "dates", min: 1500, max: 4000},
-	{name: "spices", min: 3000, max: 8500},
-	{name: "jewels", min: 10000, max: 50000},
-];
+    var pocket = {
+	    coins: 100,
+	    days: 100,
+	    space: 100,
+    };
+    
+    function get_named_good(name) {
+        return market.filter(function(good) {
+            return good.name === name;
+        })[0];
+    }
+    
+    function alter_transaction() {
+        var inp = $(this).closest('li').find('input');
+        var amt = $(this).data('amt');
+        var cur = parseInt(inp.attr('value'));
+        var name = inp.attr('id');
+        console.log(inp);
+        if (isNaN(cur)) {
+            cur = 0;
+        }
+        switch (amt) {
+        case '+all':
+            var good = get_named_good(name);
+            var affords = Math.trunc(pocket.coins / good.price);
+            cur += affords;
+            break;
+        case '-all':
+            var good = get_named_good(name);
+            cur -= good.qty||0;
+            break;
+        default:
+            cur += parseInt(amt);
+        }
+        if (cur > pocket.space) {
+            cur = pocket.space;
+        }
+        if (cur === 0) {
+            cur = '';
+        }
+        inp.attr('value', cur);
+    }
 
-var pocket = {
-	coins: 100,
-	days: 100,
-	space: 100,
-};
+    var market_view = "<li>{name} - {price} " +
+                      "<input id='{name}'></input> " +
+                      ([
+                          {amount: 1, display: 'buy 1'},
+                          {amount: 10, display: 'buy 10'},
+                          {amount: '+all', display: 'buy all'},
+                          {amount: -1, display: 'sell 1'},
+                          {amount: -10, display: 'sell 10'},
+                          {amount: '-all', display: 'sell all'}
+                      ].map(function(btn) {
+                          return "<button data-amt='{amount}'>{display}</button>".supplant(btn);
+                      }).join('')) +
+                      "you have {qty}</li>";
 
-function display() {
-	display.funcs.forEach(function(f) { f(); });
-}
-display.funcs = [];
-display.register = function(f) {
-	display.funcs.push(f);
-};
+    function display_market() {
+        var el = $("#items");
+        el.empty();
+        market.forEach(function(x) {
+	        x.price = Math.floor(Math.random() * (x.max - x.min + 1)) + x.min;
+	        el.append(market_view.supplant(x));
+        });
+        el.find('button').click(alter_transaction);
+    }
 
-(function() {
-	var market_view = "<li>{name} - {price} " +
-	                  "<input id='{name}'></input> " +
-	                  "you have {qty}</li>";
+    function display() {
+	    var pocket_view = "{coins} coins, {days} days, {space} slots";
+	    $("#pocket").text(pocket_view.supplant(pocket));
+	    display_market();
+	    display_feedback("");
+    }
 
-	display.register(function() {
-		var el = $("#items");
-		el.empty();
-		market.forEach(function(x) {
-			x.price = Math.floor(Math.random() * (x.max - x.min + 1)) + x.min;
-			var e = market_view.supplant(x);
-			el.append(e);
-		});
-	});
+    function display_feedback(msg) {
+	    $("#feedback").text(msg.entityify());
+    }
 
-	var pocket_view = "{coins} coins, {days} days, {space} slots";
-	
-	display.register(function() {
-		$("#pocket").text(pocket_view.supplant(pocket));
-	});
-	
-	display.register(function() {
-		display_feedback("");
-	});
-})();
+    function validate_quantity(qty, good) {
+	    if (qty == 0) {
+		    throw new Error("zero trades aren't allowed");
+	    }
+	    if (qty < 0 && -qty > good.qty) {
+		    throw new Error("not enough goods in hand");
+	    }
+    }
 
-function display_feedback(msg) {
-	$("#feedback").text(msg.entityify());
-}
+    function process_transaction() {
+	    var trades = [];
+	    var cost = 0, space = 0;
+	    $("#items input").each(function(index) {
+		    var s = $(this).attr("value");
+		    var good = market[index];
+		    if (s) {
+			    var qty = parseInt(s);
+			    if (isNaN(qty)) {
+				    throw new Error("invalid input: " + s);
+			    }
+			    validate_quantity(qty, good);
+			    cost += market[index].price * qty;
+			    space += qty;
+			    trades.push({index: index, qty: qty});
+		    }
+	    });
+	    if (cost > pocket.coins) {
+		    throw new Error("costs too much");
+	    }
+	    if (space > pocket.space) {
+		    throw new Error("not enough slots");
+	    }
+	    if (trades.length == 0) {
+		    throw new Error("must make a trade");
+	    }
+	    trades.forEach(function(x) {
+		    market[x.index].qty += x.qty;
+	    });
+	    pocket.coins -= cost;
+	    pocket.space -= space;
+    }
 
-function validate_quantity(qty, good) {
-	if (qty == 0) {
-		throw new Error("zero trades aren't allowed");
-	}
-	if (qty < 0 && -qty > good.qty) {
-		throw new Error("not enough goods in hand");
-	}
-}
 
-function process_transaction() {
-	var trades = [];
-	var cost = 0, space = 0;
-	$("#items input").each(function(index) {
-		var s = $(this).attr("value");
-		var good = market[index];
-		if (s) {
-			var qty = parseInt(s);
-			if (isNaN(qty)) {
-				throw new Error("invalid input: " + s);
-			}
-			validate_quantity(qty, good);
-			cost += market[index].price * qty;
-			space += qty;
-			trades.push({index: index, qty: qty});
-		}
-	});
-	if (cost > pocket.coins) {
-		throw new Error("costs too much");
-	}
-	if (space > pocket.space) {
-		throw new Error("not enough slots");
-	}
-	if (trades.length == 0) {
-		throw new Error("must make a trade");
-	}
-	trades.forEach(function(x) {
-		market[x.index].qty += x.qty;
-	});
-	pocket.coins -= cost;
-	pocket.space -= space;
-}
+    $("#trade").click(function() {
+	    try {
+		    if (pocket.days <= 0) {
+			    throw new Error("out of time");
+		    }
+		    process_transaction();
+		    pocket.days--;
+		    display();
+	    } catch(err) {
+		    display_feedback(err.toString());
+	    }
+    });
 
-$("#trade").click(function() {
-	try {
-		if (pocket.days <= 0) {
-			throw new Error("out of time");
-		}
-		process_transaction();
-		pocket.days--;
-		display();
-	} catch(err) {
-		display_feedback(err.toString());
-	}
+    market.forEach(function(x) {
+	    x.qty = 0;
+    });
+
+    display();
 });
-
-market.forEach(function(x) {
-	x.qty = 0;
-});
-
-display();
 
 </script>
 
